@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<meta name="referrer" content="no-referrer">
+<title>Autorización · NØVAK</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<main>
+  <header><a class="logo" href="../">N<span>Ø</span>VAK</a></header>
+  <h1 id="title">Autorización de TikTok</h1>
+  <div class="card" id="box">
+    <p id="msg">Leyendo respuesta…</p>
+    <code class="big" id="code" hidden></code>
+    <button id="copy" hidden>Copiar código</button>
+  </div>
+</main>
+<script>
+  const q = new URLSearchParams(location.search);
+  const code = q.get('code');
+  const err = q.get('error') || q.get('error_description');
+  const msg = document.getElementById('msg');
+  if (code) {
+    msg.textContent = 'Listo. Copia este código y pégaselo a Claude (caduca en pocos minutos):';
+    const el = document.getElementById('code');
+    el.textContent = code;
+    el.hidden = false;
+    const btn = document.getElementById('copy');
+    btn.hidden = false;
+    btn.onclick = () => navigator.clipboard.writeText(code).then(() => (btn.textContent = '¡Copiado!'));
+  } else if (err) {
+    msg.textContent = 'TikTok devolvió un error: ' + err;
+  } else {
+    msg.textContent = 'Esta página recibe la respuesta de TikTok al autorizar la app de NØVAK.';
+  }
+</script>
+</body>
+</html>
