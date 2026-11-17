@@ -19,11 +19,31 @@
   </div>
 </main>
 <script>
+  // Solo se devuelve el código a la oficina de NØVAK (nunca a otros sitios).
+  const ALLOWED = ['http://100.90.41.90:18600', 'https://hq.novak.news'];
   const q = new URLSearchParams(location.search);
   const code = q.get('code');
+  const state = q.get('state') || '';
   const err = q.get('error') || q.get('error_description');
   const msg = document.getElementById('msg');
-  if (code) {
+
+  let back = null;
+  const dot = state.indexOf('.');
+  if (dot > 0) {
+    try {
+      const b64 = state.slice(dot + 1).replace(/-/g, '+').replace(/_/g, '/');
+      const url = new URL(atob(b64 + '==='.slice((b64.length + 3) % 4)));
+      if (ALLOWED.includes(url.origin) && url.pathname === '/oauth/callback') back = url;
+    } catch (e) {}
+  }
+
+  if (back) {
+    const params = new URLSearchParams();
+    if (code) { params.set('code', code); params.set('state', state); }
+    if (err) params.set('error', err);
+    msg.textContent = 'Volviendo a la oficina de NØVAK…';
+    location.replace(back.origin + back.pathname + '?' + params.toString());
+  } else if (code) {
     msg.textContent = 'Listo. Copia este código y pégaselo a Claude (caduca en pocos minutos):';
     const el = document.getElementById('code');
     el.textContent = code;
